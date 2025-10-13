@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CONFESSION-ANONYMES(Rikiki)</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-gradient: radial-gradient(circle at 20% 20%, rgba(56,189,248,0.25), transparent 55%),
+                     radial-gradient(circle at 80% 0%, rgba(232,121,249,0.2), transparent 60%),
+                     linear-gradient(160deg, #0f172a 20%, #111827 80%);
+      --card-bg: rgba(17, 24, 39, 0.76);
+      --card-border: rgba(148, 163, 184, 0.15);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5f5;
+      --accent-1: #38bdf8;
+      --accent-2: #e879f9;
+      --accent-3: #fbbf24;
+      --shadow-soft: 0 20px 40px -25px rgba(8, 47, 73, 0.6);
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: clamp(1.5rem, 6vw, 3rem) clamp(1.25rem, 5vw, 4rem) 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .badge {
+      align-self: flex-start;
+      padding: 0.4rem 0.9rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(56,189,248,0.4);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 5vw, 3.6rem);
+      line-height: 1.1;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    h1 span {
+      color: var(--accent-2);
+    }
+
+    .hero-copy {
+      max-width: 640px;
+      color: var(--text-secondary);
+      font-size: clamp(1.05rem, 2.8vw, 1.2rem);
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-primary {
+      padding: 0.9rem 1.6rem;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0b1120;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      box-shadow: 0 18px 28px -15px rgba(56,189,248,0.5);
+      transition: transform 180ms ease, box-shadow 200ms ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 38px -18px rgba(56,189,248,0.55);
+    }
+
+    .btn-ghost {
+      padding: 0.85rem 1.5rem;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(15, 23, 42, 0.4);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: border-color 200ms ease, color 200ms ease, transform 180ms ease;
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(232, 121, 249, 0.5);
+      color: var(--text-primary);
+      transform: translateY(-2px);
+    }
+
+    main {
+      padding: 0 clamp(1.25rem, 5vw, 4rem) clamp(4rem, 8vw, 6rem);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(2rem, 6vw, 3rem);
+      position: relative;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-weight: 600;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+      color: var(--accent-1);
+    }
+
+    .live-indicator::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-1);
+      box-shadow: 0 0 10px rgba(56,189,248,0.7);
+      animation: pulse 1.6s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.85); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .confessions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.4rem;
+    }
+
+    .confession-card {
+      position: relative;
+      padding: 1.4rem;
+      border-radius: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transform: translateY(40px);
+      opacity: 0;
+      transition: transform 420ms ease, opacity 420ms ease;
+    }
+
+    .confession-card.revealed {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .confession-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, transparent, rgba(56,189,248,0.08));
+      opacity: 0;
+      transition: opacity 250ms ease;
+      pointer-events: none;
+    }
+
+    .confession-card:hover::after {
+      opacity: 1;
+    }
+
+    .confession-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .alias {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .alias span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(232,121,249,0.18);
+      color: var(--accent-2);
+      font-size: 0.75rem;
+    }
+
+    .confession-text {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+    }
+
+    .confession-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .confession-tags span {
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(56,189,248,0.15);
+      color: #bae6fd;
+      font-size: 0.75rem;
+    }
+
+    .confession-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .reaction-group {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .reaction-btn {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.2);
+      background: rgba(15,23,42,0.5);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: transform 180ms ease, border-color 200ms ease, color 200ms ease;
+      font-weight: 500;
+    }
+
+    .reaction-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(232,121,249,0.4);
+      color: var(--accent-2);
+    }
+
+    .submit-panel {
+      position: sticky;
+      bottom: 1.5rem;
+      margin-top: 1rem;
+      align-self: flex-end;
+      max-width: 420px;
+      background: rgba(15,23,42,0.72);
+      border: 1px solid rgba(56,189,248,0.18);
+      border-radius: 24px;
+      padding: 1.5rem;
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 25px 50px -20px rgba(8,47,73,0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .submit-panel h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    textarea {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.2);
+      background: rgba(15,23,42,0.55);
+      color: var(--text-primary);
+      padding: 0.95rem;
+      font-size: 1rem;
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: rgba(56,189,248,0.6);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.18);
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    select, input[type="text"] {
+      flex: 1 1 160px;
+      padding: 0.7rem 0.9rem;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,0.25);
+      background: rgba(15,23,42,0.55);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    select:focus,
+    input[type="text"]:focus {
+      outline: none;
+      border-color: rgba(232,121,249,0.6);
+      box-shadow: 0 0 0 3px rgba(232,121,249,0.18);
+    }
+
+    .mood-meter {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-2);
+    }
+
+    .submit-panel .btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
+
+    footer {
+      padding: 2rem clamp(1.25rem, 5vw, 4rem) 3rem;
+      color: rgba(148,163,184,0.7);
+      font-size: 0.85rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 780px) {
+      header {
+        padding-bottom: 0;
+      }
+
+      .confessions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .submit-panel {
+        position: relative;
+        max-width: 100%;
+        bottom: auto;
+        margin-top: 2rem;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    /* Decorative floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(45px);
+      opacity: 0.6;
+      animation: float 18s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .orb.one {
+      width: 320px;
+      height: 320px;
+      top: -60px;
+      right: -120px;
+      background: rgba(232,121,249,0.35);
+    }
+
+    .orb.two {
+      width: 220px;
+      height: 220px;
+      bottom: 20%;
+      left: -80px;
+      background: rgba(56,189,248,0.3);
+      animation-duration: 22s;
+    }
+
+    @keyframes float {
+      0% { transform: translate3d(0,0,0) scale(1); }
+      100% { transform: translate3d(30px, -40px, 0) scale(1.1); }
+    }
+    .confession-note {
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+
+  <header>
+    <span class="badge">Beta privée · Anonyme & sécurisé</span>
+    <h1>Confiez vos secrets et laissez-les résonner dans les <span>Échos Cachés</span>.</h1>
+    <p class="hero-copy">
+      Un sanctuaire numérique où déposer vos confessions anonymes, explorer les murmures des autres
+      et ressentir la catharsis collective. Sans jugement, sans trace, juste la puissance des mots.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary" id="open-form">Publier une confession</button>
+      <button class="btn-ghost">Découvrir les échos</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="section-title">
+      <h2>Confessions en direct</h2>
+      <span class="live-indicator">Live</span>
+    </div>
+
+    <section class="confessions-grid" id="confessionGrid">
+      <!-- Cartes générées en JS -->
+    </section>
+
+    <aside class="submit-panel" id="submitPanel">
+      <h3>Déposer une nouvelle confession</h3>
+      <form id="confessionForm">
+        <textarea name="content" placeholder="Écris ici ce que tu n’as encore jamais avoué…" required></textarea>
+        <div class="form-row">
+          <select name="tag" id="tag-select" aria-label="Étiquette">
+            <option value="">Étiquette (optionnelle)</option>
+            <option value="amour">❤️ Amour</option>
+            <option value="culpabilité">😔 Culpabilité</option>
+            <option value="joie">✨ Joie</option>
+            <option value="peur">🌫️ Peur</option>
+            <option value="autre">… Autre</option>
+          </select>
+          <input type="text" name="alias" placeholder="Alias furtif (auto-généré sinon)" />
+          </div>
+        <div class="mood-meter">
+          <label for="mood-range">Intensité émotionnelle</label>
+          <input type="range" id="mood-range" name="mood" min="0" max="100" value="50" />
+        </div>
+        <small class="confession-note">
+          Les confessions passent par un filtre anti-toxicité avant publication. Aucun suivi, aucune donnée personnelle stockée.
+        </small>
+      </form>
+      <small class="confession-note">
+        Les confessions passent par un filtre anti-toxicité avant publication. Aucun suivi, aucune donnée personnelle stockée.
+      </small>
+    </aside>
+  </main>
+
+  <footer>
+    <span>© 2025 Échos Cachés. Tous droits réservés.</span>
+    <span>Charte · Modération · Confidentialité</span>
+  </footer>
+
+  <script>
+    const confessions = [
+      {
+        alias: "Spectre_27",
+        content: "Je fais semblant d’être forte pour tout le monde, mais chaque soir je pleure en silence parce que j’ai peur de décevoir.",
+        tags: ["vulnérabilité"],
+        mood: "intense",
+        minutesAgo: 4
+      },
+      {
+        alias: "Nébuleuse",
+        content: "J’ai retrouvé la lettre que je n’ai jamais envoyée à mon premier amour. Je la relis encore parfois, juste pour me rappeler qui j’étais.",
+        tags: ["nostalgie", "amour"],
+        mood: "doux",
+        minutesAgo: 12
+      },
+      {
+        alias: "Énigme",
+        content: "Je ne sais pas comment dire à mes parents que ce n’est pas le métier dont je rêve. Je voudrais partir, mais j’ai peur de briser leur espoir.",
+        tags: ["famille", "peur"],
+        mood: "sombre",
+        minutesAgo: 18
+      },
+      {
+        alias: "Velours",
+        content: "J’ai enfin dit non à quelqu’un aujourd’hui. C’était juste un café, mais pour moi c’était une révolution silencieuse.",
+        tags: ["fierté", "libération"],
+        mood: "lumineux",
+        minutesAgo: 26
+      },
+      {
+        alias: "Anonyme",
+        content: "Je garde un carnet rempli de toutes les idées de romans que je n’écrirai jamais. Peut-être qu’en les confiant ici, j’aurai le courage de commencer.",
+        tags: ["créativité"],
+        mood: "rêveur",
+        minutesAgo: 35
+      },
+      {
+        alias: "Sillage",
+        content: "Chaque fois que je mens pour me protéger, je sens que je m’éloigne un peu plus de la personne que je voudrais être.",
+        tags: ["culpabilité"],
+        mood: "intense",
+        minutesAgo: 42
+      }
+    ];
+
+    const emojis = ["✧", "☾", "✦", "♢", "★"];
+    const reactionTypes = [
+      { label: "Je ressens", icon: "✨" },
+      { label: "Je comprends", icon: "🤍" },
+      { label: "Courage", icon: "🪽" }
+    ];
+    const confessionGrid = document.getElementById("confessionGrid");
+
+    function renderConfessions() {
+      confessionGrid.innerHTML = "";
+      confessions.forEach((confession, index) => {
+        const card = document.createElement("article");
+        card.className = "confession-card";
+
+        const meta = document.createElement("div");
+        meta.className = "confession-meta";
+        meta.innerHTML = `
+          <span class="alias"><span>${emojis[index % emojis.length]}</span>${confession.alias}</span>
+          <span>il y a ${confession.minutesAgo} min</span>
+        `;
+
+        const text = document.createElement("p");
+        text.className = "confession-text";
+        text.textContent = confession.content;
+
+        const tags = document.createElement("div");
+        tags.className = "confession-tags";
+        confession.tags.forEach(tag => {
+          const chip = document.createElement("span");
+          chip.textContent = "#" + tag;
+          tags.appendChild(chip);
+        });
+
+        const actions = document.createElement("div");
+        actions.className = "confession-actions";
+
+        const reactionGroup = document.createElement("div");
+        reactionGroup.className = "reaction-group";
+
+        reactionTypes.forEach(reaction => {
+          const btn = document.createElement("button");
+          btn.className = "reaction-btn";
+          btn.innerHTML = `${reaction.icon} <span>${reaction.label}</span>`;
+          btn.type = "button";
+          btn.addEventListener("click", () => {
+            btn.animate(
+              [
+                { transform: "translateY(0)" },
+                { transform: "translateY(-6px)" },
+                { transform: "translateY(0)" }
+              ],
+              { duration: 280, easing: "ease-out" }
+            );
+          });
+          reactionGroup.appendChild(btn);
+        });
+
+        actions.appendChild(reactionGroup);
+
+        const mood = document.createElement("span");
+        mood.textContent = `Intensité : ${confession.mood}`;
+        mood.style.fontStyle = "italic";
+        mood.style.color = "rgba(148,163,184,0.8)";
+        actions.appendChild(mood);
+
+        card.appendChild(meta);
+        card.appendChild(text);
+        if (confession.tags.length) card.appendChild(tags);
+        card.appendChild(actions);
+
+        confessionGrid.appendChild(card);
+
+        // Reveal animation
+        setTimeout(() => {
+          card.classList.add("revealed");
+        }, 80 * index);
+      });
+    }
+
+    renderConfessions();
+
+    // Intersection observer pour révélation progressive
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("revealed");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    document.querySelectorAll(".confession-card").forEach(card => observer.observe(card));
+
+    // Générateur d'alias
+    const aliasPrefixes = ["Spectre", "Halo", "Ombre", "Éclipse", "Velours", "Cipher", "Lueur"];
+    const aliasSuffixes = ["27", "LX", "Nova", "∞", "Nocturne", "Alpha", "Δ"];
+
+    function generateAlias() {
+      const prefix = aliasPrefixes[Math.floor(Math.random() * aliasPrefixes.length)];
+      const suffix = aliasSuffixes[Math.floor(Math.random() * aliasSuffixes.length)];
+      return `${prefix}_${suffix}`;
+    }
+
+    const aliasInput = document.querySelector('input[name="alias"]');
+    aliasInput.placeholder = `Alias furtif (ex : ${generateAlias()})`;
+
+    // Scroll vers formulaire + pop-in
+    const openFormBtn = document.getElementById("open-form");
+    const submitPanel = document.getElementById("submitPanel");
+
+    openFormBtn.addEventListener("click", () => {
+      submitPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+      submitPanel.animate(
+        [
+          { transform: "scale(0.98)", boxShadow: "0 20px 35px -20px rgba(8,47,73,0.6)" },
+          { transform: "scale(1)", boxShadow: "0 25px 50px -20px rgba(8,47,73,0.55)" }
+        ],
+        { duration: 320, easing: "cubic-bezier(.21,1.02,.73,1)", fill: "forwards" }
+      );
+    });
+
+    // Soumission fictive
+    const form = document.getElementById("confessionForm");
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const content = formData.get("content")?.toString().trim();
+      if (!content) return;
+
+      const tagValue = formData.get("tag")?.toString().trim();
+      const aliasValue = formData.get("alias")?.toString().trim() || generateAlias();
+      const moodValue = formData.get("mood");
+      let moodLabel = "modéré";
+      if (moodValue > 66) moodLabel = "intense";
+      else if (moodValue < 33) moodLabel = "doux";
+
+      confessions.unshift({
+        alias: aliasValue,
+        content,
+        tags: tagValue ? [tagValue] : [],
+        mood: moodLabel,
+        minutesAgo: 0
+      });
+
+      if (confessions.length > 12) confessions.pop();
+      renderConfessions();
+      document.querySelectorAll(".confession-card").forEach(card => observer.observe(card));
+
+      form.reset();
+      aliasInput.placeholder = `Alias furtif (ex : ${generateAlias()})`;
+
+      submitPanel.animate(
+        [
+          { transform: "translateY(0)" },
+          { transform: "translateY(-6px)" },
+          { transform: "translateY(0)" }
+        ],
+        { duration: 320, easing: "ease-out" }
+      );
+    });
+  </script>
+</body>
+</html>ipt>
+</body>
+</html>
